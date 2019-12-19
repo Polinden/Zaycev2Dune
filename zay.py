@@ -121,7 +121,7 @@ def main(song_name, quiet, shell):
 parser = argparse.ArgumentParser(description='Techno Zayats!')
 parser.add_argument("--name", required=True, type=str, help="A Song name")
 parser.add_argument("-q", default=False, action='store_true', help="Quiet mode")
-parser.add_argument("-s", default=False, action='store_true', help="Download first mode. Dune HD has top have the root access")
+parser.add_argument("-s", default=False, action='store_true', help="Download first mode. Dune HD has to have the root access")
 args = parser.parse_args()
 main(re.sub(r'\s+','+', args.name), args.q, args.s)
 
