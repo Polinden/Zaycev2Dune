@@ -17,6 +17,7 @@ dune_api=dune_url+'/cgi-bin/do?cmd=start_file_playback&media_url='
 dune_ftp="/D"
 dune_user="root"
 dune_ssh_pass=""
+playlist_name="crazy_playlist"
 
 pat="{}"
 dn=os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +29,7 @@ def getContent(u, name):
       s = requests.Session()
       u1=u.split('/'); ubase=u1[0]+'//'+u1[2]
       res=s.get(ubase, headers={'User-Agent': 'Mozilla/5.0'})
+      name=re.sub(r'\s+','+', args.name)
       page=s.get(u+name)
       return BeautifulSoup(page.content, 'html.parser')
    except: return None
@@ -45,22 +47,42 @@ def seconds(s):
       return  int(s1[0])*60+int(s1[1])
    except: return 0
 
+def add_to_playlist(name, url, time):
+    delimited_str=f'{name} -##!##-  {url} -##!##-  {time}{os.linesep}'
+    with open(f'{dn}/{playlist_name}', 'a+') as fpl:
+        fpl.write(delimited_str)
 
-def dun_req(res, too, quiet=False, shell=False):
+def dun_req(name, url, too, time, quiet=False, via_ftp=False, playlist=False):
    try:
       if too:
-         res=getSubContent(res, too)
-      if not quiet: print('playing.. {}'. format(res))
-      if not shell:
-         res=requests.get(dune_api+res, timeout=10)
+         url=getSubContent(url, too)
+      if not via_ftp:
+         res=requests.get(dune_api+url, timeout=10)
          if not res.ok: raise Exception()
       else:
-         subprocess.call([play_load.format(res)], stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-   except ValueError: return
+         subprocess.call([play_load.format(url)], stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+      #if successfully playing then add to playlist and inform user
+      if not quiet: print('OK. Playing {}, wait {}sec'. format(name, time))
+      else: print(seconds(time))
+      if playlist: add_to_playlist(name, url, time)
+   except ValueError as e: return
    except Exception as e:  sys.exit(2)
 
+def prepare_name(name):
+    name = re.sub(r'[^a-zA-Z0-9]+',' ', name)
+    name = re.sub(r'\s+','+', name)
+    return name
 
-def main(song_name, quiet, shell):
+
+def main(song_name, quiet, via_ftp, playlist, dest='', time=''):
+
+    #don't search mode. url is known from playlist
+    if dest:
+        if not time: time='2:22'
+        dun_req(song_name, dest, '', time, quiet=True, via_ftp=via_ftp, playlist=False)
+        return
+
+    song_name=prepare_name(song_name)
 
     #plugins that query service, use BeautifulSoup to parse responce and return data in 
     #format  [('trackname', 'url://*.mp3', 'command_after_sub_request', 'time')]
@@ -73,7 +95,7 @@ def main(song_name, quiet, shell):
     a1=soup1.find_all('div', class_='musicset-track-list__items')
     a2=sum((a.find_all('div', class_='musicset-track clearfix') for a in a1), [])
     a3=[(a.get_text(), 'https://zaycev.net'+a.get_attribute_list(key='data-url')[0], a) for a in a2]
-    a4=[(a[0], a[1], ".json()['url']", a[2].find(class_='musicset-track__duration').get_text()) for a in a3]
+    a4=[(re.sub(r'\d+:\d+','', a[0]), a[1], ".json()['url']", a[2].find(class_='musicset-track__duration').get_text()) for a in a3]
 
     #=====================================================================================================================
     #mp3party
@@ -102,8 +124,7 @@ def main(song_name, quiet, shell):
     ar=[un.add(a[0]+a[3]) or a for a in sa if a[0]+a[3] not in un]
 
     if quiet and ar:
-        dun_req(ar[0][1], ar[0][2], quiet, shell)
-        print(seconds(ar[0][3]))
+        dun_req(*ar[0], quiet, via_ftp, playlist)
 
     else:
       for i in range(len(ar)):
@@ -113,7 +134,7 @@ def main(song_name, quiet, shell):
            y=input('play? y/n/q  ')
            if y=='q': return
            elif y=='y':
-               dun_req(ar[i][1], ar[i][2], quiet, shell)
+               dun_req(*ar[i], quiet, via_ftp, playlist)
                break
 
 
@@ -122,8 +143,12 @@ parser = argparse.ArgumentParser(description='Techno Zayats!')
 parser.add_argument("--name", required=True, type=str, help="A Song name")
 parser.add_argument("-q", default=False, action='store_true', help="Quiet mode")
 parser.add_argument("-s", default=False, action='store_true', help="Download first mode. Dune HD has to have the root access")
+parser.add_argument("-p", default=False, action='store_true', help="With adding to palylist")
+parser.add_argument("--dest", required=False, type=str, help="URL already known (don't search mode)")
+parser.add_argument("--time", required=False, type=str, help="Song time (for 'don't search mode)")
+
 args = parser.parse_args()
-main(re.sub(r'\s+','+', args.name), args.q, args.s)
+main(*args.__dict__.values())
 
 
 
