@@ -7,19 +7,29 @@ dune_ftp="/D"
 dune_ssh_user=root
 dune_ssh_pass=""
 
-if [ ! -z "$2" ]
+
+dune_ip=(${dune_url//\/\// })
+dune_ip="${dune_ip[1]}"
+ping_res=`ping -c 1 "$dune_ip" 1> /dev/null; echo $?`
+if [[ ! "$ping_res" = 0 ]]
+  then 
+    echo "Dune on IP adress $dune_ip not found"
+    exit 2 
+fi	
+
+if [[ ! -z "$2" ]]
   then
     dune_url="$2"
 fi
-if [ ! -z "$3" ]
+if [[ ! -z "$3" ]]
   then
     dune_ftp="$3"
 fi        
-if [ ! -z "$4" ]
+if [[ ! -z "$4" ]]
   then
     dune_ssh_user="$4"
 fi        
-if [ ! -z "$5" ]
+if [[ ! -z "$5" ]]
   then
     dune_ssh_pass="$5"
 fi        

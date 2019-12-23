@@ -62,6 +62,8 @@ dune_user, dune_ssh_pass** variables in the *lines 17-19 in zay.py*). This is us
 
    **optware.sh** - installation script is included, in case you don't have your own. Not to mention "root" access to Dune! 
 
+   Your device should be provided with **"except"** util. Install it (e.g. **sudo apt -y install except, brew install except...**)
+
 4) **zay.py** file is not limited by a fixed mp3-stocks list. Just the opposite, it is fully *extendable*.
 
    You are free to include/replace, so to say, **"plugins snippets"** with different mp3 deposits. For details go to *the line 87 in zay.py*

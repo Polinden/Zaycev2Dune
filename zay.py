@@ -1,5 +1,3 @@
-#! /usr/local/bin/python3
-
 
 import requests
 from bs4 import BeautifulSoup
@@ -9,7 +7,7 @@ import sys
 import time
 import os
 import subprocess
-
+from requests import RequestException
 
 #edit this data to work with your dune hd
 dune_url='http://192.168.77.50'
@@ -58,15 +56,18 @@ def dun_req(name, url, too, time, quiet=False, via_ftp=False, playlist=False):
          url=getSubContent(url, too)
       if not via_ftp:
          res=requests.get(dune_api+url, timeout=10)
-         if not res.ok: raise Exception()
+         if not res.ok: raise RequestException()
       else:
-         subprocess.call([play_load.format(url)], stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+         code=subprocess.call([play_load.format(url)], stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+         if code: raise RequestException()
       #if successfully playing then add to playlist and inform user
       if not quiet: print('OK. Playing {}, wait {}sec'. format(name, time))
       else: print(seconds(time))
       if playlist: add_to_playlist(name, url, time)
    except ValueError as e: return
-   except Exception as e:  sys.exit(2)
+   except RequestException: print('Connection error. Check Dune ip settings. Sure your Dune is on and root-ed properly?'); sys.exit(2)
+   except Exceptioni: print(e.args[0]); sys.exit(2)
+
 
 def prepare_name(name):
     name = re.sub(r'[^a-zA-Z0-9]+',' ', name)
