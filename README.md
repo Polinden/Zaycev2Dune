@@ -58,11 +58,14 @@ dune_user, dune_ssh_pass** variables in the *lines 17-19 in zay.py*). This is us
 
    To use this advantage set the option *-s*. e.g *"python3 zay.py -s --name 'рюмка водки лепс'"*
 
-3) the last option is available for you if you got *"curl"* and *"ssh"* installed on your Dune HD by the help of *optware*
+3) the last option is available for you if you get *"curl"* and *"ssh"* installed on your Dune HD by the help of *optware*. Only then your Dune could receive and perform the command to download mp3 file
 
    **optware.sh** - installation script is included, in case you don't have your own. Not to mention "root" access to Dune! 
 
-   Your device should be provided with **"except"** util. Install it (e.g. **sudo apt -y install except, brew install except...**)
+   On the other side, your commanding device in order to send a command to Dune (via ssh) should be provided with **"except"**   
+   util (to automate a password typing). Install it (e.g. *sudo apt-get install except, brew install except, etc.*). This
+   option is used here but is not the only one possible. There is a famouse "web interface for wget plugin" for Dune that
+   could be considered as an alternative to our idea.
 
 4) **zay.py** file is not limited by a fixed mp3-stocks list. Just the opposite, it is fully *extendable*.
 
