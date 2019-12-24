@@ -6,7 +6,7 @@
 
 ### The public API is used. No hacks. You may listen all songs Zaycev regards as downloadable
 
-### You might need some little tweaks to use this tool with other media devices
+### Dune HD was tested. You might need some tweaks to use this tool with other devices
 
 &nbsp;
 &nbsp;
