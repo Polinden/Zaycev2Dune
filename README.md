@@ -28,7 +28,7 @@
 
     python3 zay.py --name 'рюмка водки лепс'
 
-    python3 zay.py --name -s -p 'рюмка водки лепс'
+    python3 zay.py -s -p --name 'рюмка водки лепс'
 
 &nbsp;
 
