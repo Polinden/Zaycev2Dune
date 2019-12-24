@@ -1,4 +1,5 @@
 
+
 import requests
 from bs4 import BeautifulSoup
 import argparse
@@ -7,7 +8,8 @@ import sys
 import time
 import os
 import subprocess
-from requests import RequestException
+from fuzzywuzzy import fuzz
+
 
 #edit this data to work with your dune hd
 dune_url='http://192.168.77.50'
@@ -27,7 +29,6 @@ def getContent(u, name):
       s = requests.Session()
       u1=u.split('/'); ubase=u1[0]+'//'+u1[2]
       res=s.get(ubase, headers={'User-Agent': 'Mozilla/5.0'})
-      name=re.sub(r'\s+','+', args.name)
       page=s.get(u+name)
       return BeautifulSoup(page.content, 'html.parser')
    except: return None
@@ -56,21 +57,18 @@ def dun_req(name, url, too, time, quiet=False, via_ftp=False, playlist=False):
          url=getSubContent(url, too)
       if not via_ftp:
          res=requests.get(dune_api+url, timeout=10)
-         if not res.ok: raise RequestException()
+         if not res.ok: raise Exception()
       else:
-         code=subprocess.call([play_load.format(url)], stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-         if code: raise RequestException()
+         subprocess.call([play_load.format(url)], stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
       #if successfully playing then add to playlist and inform user
       if not quiet: print('OK. Playing {}, wait {}sec'. format(name, time))
       else: print(seconds(time))
       if playlist: add_to_playlist(name, url, time)
    except ValueError as e: return
-   except RequestException: print('Connection error. Check Dune ip settings. Sure your Dune is on and root-ed properly?'); sys.exit(2)
-   except Exceptioni: print(e.args[0]); sys.exit(2)
-
+   except Exception as e:  sys.exit(2)
 
 def prepare_name(name):
-    name = re.sub(r'[^a-zA-Z0-9]+',' ', name)
+    name = re.sub(r'[\W]+',' ', name)
     name = re.sub(r'\s+','+', name)
     return name
 
@@ -128,6 +126,7 @@ def main(song_name, quiet, via_ftp, playlist, dest='', time=''):
         dun_req(*ar[0], quiet, via_ftp, playlist)
 
     else:
+      ar = sorted(ar, key=lambda a: -fuzz.partial_ratio(song_name, a[0]))
       for i in range(len(ar)):
         if ar[i]:
            print('found: {:>4})'.format(i+1), end=' ')
