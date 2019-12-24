@@ -6,7 +6,7 @@
 
 ### The public API is used. No hacks. You may listen all songs Zaycev regards as downloadable
 
-### You might need some little tweaks to use this tool withr other media devices
+### You might need some little tweaks to use this tool with other media devices
 
 &nbsp;
 &nbsp;
