@@ -66,6 +66,8 @@ dune_user, dune_ssh_pass** variables in the *lines 17-19 in zay.py*). This is us
    **"except"** util (to automate a password typing). Install it (e.g. *sudo apt-get install except, brew install except, 
    etc.*). This option is used here but is not the only one possible. There is a famouse "web interface for wget plugin" 
    for Dune that could be considered as an alternative to our idea.
+   
+   If abovementioned (2 and 3 points) is a *headache* for you, just drop it and don't use *-s* potion!
 
 4) **zay.py** file is not limited by a fixed mp3-stocks list. Just the opposite, it is fully *extendable*.
 
