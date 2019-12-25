@@ -11,7 +11,7 @@
 &nbsp;
 &nbsp;
 
-*Lang: Python 3.7. Libs required: Beautifulsoup, requests*
+*Lang: Python 3.7. Libs required: Beautifulsoup, requests, python-Levenshtein, fuzzywuzzy*
 
 &nbsp;
 &nbsp;

@@ -64,8 +64,8 @@ def dun_req(name, url, too, time, quiet=False, via_ftp=False, playlist=False):
       if not quiet: print('OK. Playing {}, wait {}sec'. format(name, time))
       else: print(seconds(time))
       if playlist: add_to_playlist(name, url, time)
-   except ValueError as e: return
-   except Exception as e:  sys.exit(2)
+   except ValueError as e: print(e); return
+   except Exception as e:  print(e); sys.exit(2)
 
 def prepare_name(name):
     name = re.sub(r'[\W]+',' ', name)
@@ -122,11 +122,13 @@ def main(song_name, quiet, via_ftp, playlist, dest='', time=''):
     un=set()
     ar=[un.add(a[0]+a[3]) or a for a in sa if a[0]+a[3] not in un]
 
+    #fuzzy search
+    if True: ar = sorted(ar, key=lambda a: -fuzz.partial_ratio(song_name, a[0]))
+
     if quiet and ar:
         dun_req(*ar[0], quiet, via_ftp, playlist)
 
     else:
-      ar = sorted(ar, key=lambda a: -fuzz.partial_ratio(song_name, a[0]))
       for i in range(len(ar)):
         if ar[i]:
            print('found: {:>4})'.format(i+1), end=' ')

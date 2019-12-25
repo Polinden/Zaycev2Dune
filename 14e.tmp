@@ -1,0 +1,6 @@
+spawn ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 root@192.168.77.50 "rm /D/1.mp3;  /opt/bin/curl -L -b cookiefile -c cookiefile --insecure https://cdndl.zaycev.net --output /D/1.mp3;  /opt/bin/curl -L -b cookiefile -c cookiefile --insecure https://cdndl.zaycev.net/play/678856/EW-I4yjjqa-cHQNgpwan7H9LT5U0Azuu98jni9imVQkKDmDSX8kpDM1F7Fvrm8F7IqES3JBq-pi37BjTdd8Om3gG0MENZVn1nahQ-dgGz0XpW882-TmNog9l6DeUQSJl4tjHXd4LpGrcaa_Zd9UxOiJ44tt1RjdW0vbLR3tul2u3jBQFF7yIFVuGW1SVibyvq-TeiNIgMGU2S_1G1_GKuaTrTClz1PinN3zZrmZGbpspciWlCVLbalNuSwygzAI5rx4sFOCiR_y3yH99gir0Y0f19LeujUUSJ8esGHRuPz5QpbZuLRjkLBf6BkmLxLogDGVa87CYpWIrHiOZnsh2wuy5Zs_qPPkeoicQLkMUFxnVDZdAzrHGF5Ry35luDdxB8DLcnDznEgRnU8O_6P1ho7QBP5Zft8R5hOpTQLD2cUu4LZqwmCxh0_E5A9dOMeDNUBjiAtpobp4M0QUWnc0QBcOHxZwKUsGpHwdxM-VtY3h-NQOqZ7CeBSJXmmn-ijHekACiu3Tv0JbEhtjTxtGk9MkEjaPsJdKaqTJfiLid4cu-maZj/yJGwhmUN5k6e9vU7iWqIVmmXPPiDDSpIer--79bne-rGF9C2Gj9P4fTBe1JRIamxtUV78vGyX8mqzsgS0Qzulmk4mXiZmDo6  --output /D/1.mp3"
+match_max 100000
+expect "*?assword:*"
+send -- "\r"
+send -- "\r"
+interact
