@@ -9,6 +9,7 @@ import time
 import os
 import subprocess
 from fuzzywuzzy import fuzz
+import xml.etree.ElementTree as ET
 
 
 #edit this data to work with your dune hd
@@ -21,7 +22,8 @@ playlist_name="crazy_playlist"
 
 pat="{}"
 dn=os.path.dirname(os.path.abspath(__file__))
-play_load=f"{dn}/formsefon.sh  {pat} {dune_url} {dune_ftp} {dune_user} {dune_ssh_pass}"
+play_script=f"{dn}/formsefon.sh"
+play_load=f"{pat} {dune_url} {dune_ftp} {dune_user} {dune_ssh_pass}"
 
 
 def getContent(u, name):
@@ -51,19 +53,33 @@ def add_to_playlist(name, url, time):
     with open(f'{dn}/{playlist_name}', 'a+') as fpl:
         fpl.write(delimited_str)
 
-def dun_req(name, url, too, time, quiet=False, via_ftp=False, playlist=False):
+def chech_result_dune(res):
+    try:
+        if isinstance(res, bytes): res=res.decode()
+        res='<?xml version'+res.split('<?xml version')[1]
+        myroot = ET.fromstring(res)
+        q=myroot.findall("*[@name='command_status']")
+        q=q[0].attrib['value']
+        return q=='ok'
+    except: return True
+
+def dun_req(name, url, too, time, quiet=False, via_ftp=False, playlist=False, rcc=""):
    try:
       if too:
          url=getSubContent(url, too)
       if not via_ftp:
          res=requests.get(dune_api+url, timeout=10)
          if not res.ok: raise Exception()
+         rcc=res.text
       else:
-         subprocess.call([play_load.format(url)], stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+          rcc=subprocess.Popen([play_script, play_load.format(url)], stdout=subprocess.PIPE).communicate()[0]
       #if successfully playing then add to playlist and inform user
       if not quiet: print('OK. Playing {}, wait {}sec'. format(name, time))
       else: print(seconds(time))
-      if playlist: add_to_playlist(name, url, time)
+      rcc=chech_result_dune(rcc)
+      if playlist and rcc: 
+          add_to_playlist(name, url, time)
+      return rcc
    except ValueError as e: print(e); return
    except Exception as e:  print(e); sys.exit(2)
 
@@ -94,7 +110,7 @@ def main(song_name, quiet, via_ftp, playlist, dest='', time=''):
     a1=soup1.find_all('div', class_='musicset-track-list__items')
     a2=sum((a.find_all('div', class_='musicset-track clearfix') for a in a1), [])
     a3=[(a.get_text(), 'https://zaycev.net'+a.get_attribute_list(key='data-url')[0], a) for a in a2]
-    a4=[(re.sub(r'\d+:\d+','', a[0]), a[1], ".json()['url']", a[2].find(class_='musicset-track__duration').get_text()) for a in a3]
+    a4=[(re.sub(r'\d+:\d+','', a[0]), a[1],".json()['url']", a[2].find(class_='musicset-track__duration').get_text()) for a in a3]
 
     #=====================================================================================================================
     #mp3party
@@ -117,27 +133,32 @@ def main(song_name, quiet, via_ftp, playlist, dest='', time=''):
     #join plugins results together
     sa=a4+b3+s5 #+ your result
 
-
-    sa=list(filter(lambda x: seconds(x[3])>30, sa))
+    #url is not none and duration>30sec and unique name in list
+    sa=list(filter(lambda a: seconds(a[3])>30 and a[1], sa))
     un=set()
     ar=[un.add(a[0]+a[3]) or a for a in sa if a[0]+a[3] not in un]
 
-    #fuzzy search
+    #fuzzy search and sort 
     if True: ar = sorted(ar, key=lambda a: -fuzz.partial_ratio(song_name, a[0]))
 
     if quiet and ar:
-        dun_req(*ar[0], quiet, via_ftp, playlist)
+        for a in ar:
+            if dun_req(*a, quiet, via_ftp, playlist):
+               return 0
 
     else:
-      for i in range(len(ar)):
-        if ar[i]:
-           print('found: {:>4})'.format(i+1), end=' ')
-           print('{} - {}sec.'.format(ar[i][0], ar[i][3]))
+      i=1
+      for a in ar:
+           print('found: {:>4})'.format(i), end=' ')
+           print('{} - {}sec.'.format(a[0], a[3]))
            y=input('play? y/n/q  ')
-           if y=='q': return
+           if y=='q': return 0
            elif y=='y':
-               dun_req(*ar[i], quiet, via_ftp, playlist)
-               break
+               if dun_req(*a, quiet, via_ftp, playlist):
+                   return 0
+               else: 
+                   print("error while playing")
+           i+=1
 
 
 

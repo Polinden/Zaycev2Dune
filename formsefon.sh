@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo $1 $2 $3 $4 > test
 
 #edit url and other data
 dune_url="http://192.168.77.50"
