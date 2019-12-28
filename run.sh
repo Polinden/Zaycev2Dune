@@ -12,11 +12,6 @@ echo "I am playing a list given to me"
 echo "q - to quit, s - to skip, replay-r"
 
 
-replay () {
-    if [[ $il -ge 0 ]]; then il=$(( $il - 1 )); fi
-    break
-}
-
 spause () {
     echo -e "\rplaying \033[36m$1\033[39m" "sleeping $(($2/60)):$(($2%60))"
     for pc in $(seq 1 1 "$2"); do
@@ -25,7 +20,11 @@ spause () {
         kp1=""; read -t 1 -s -n 1 kp1 || True
         [[ $kp1 = 'q' ]] && break 2
         [[ $kp1 = 's' ]] && break
-        [[ $kp1 = 'r' ]] && replay
+        if [[ $kp1 = 'r' ]] 
+          then 
+             if [[ $il -ge 0 ]]; then il=$(( $il - 1 )); fi
+             break
+        fi
     done
     return 0
 }
@@ -58,7 +57,7 @@ do
     else
       p=$(python3 zay.py -s -q -p --name "$line")
     fi
-    spause "$line" "$p"
+    [[ ! -z $p ]] && spause "$line" "$p"
 done
 
 echo

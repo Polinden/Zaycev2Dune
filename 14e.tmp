@@ -1,0 +1,6 @@
+spawn ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 root@192.168.77.50 "rm /D/1.mp3;  /opt/bin/curl -L -b cookiefile -c cookiefile --insecure https://z1.fm --output /D/1.mp3;  /opt/bin/curl -L -b cookiefile -c cookiefile --insecure https://z1.fm/download/9579461 http://192.168.77.50 /D root   --output /D/1.mp3"
+match_max 100000
+expect "*?assword:*"
+send -- "\r"
+send -- "\r"
+interact
