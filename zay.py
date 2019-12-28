@@ -65,21 +65,22 @@ def chech_result_dune(res):
 
 def dun_req(name, url, too, time, quiet=False, via_ftp=False, playlist=False, rcc=""):
    try:
-      if too:
-         url=getSubContent(url, too)
+      if too: url = getSubContent(url, too)
+      if not url: raise Exception()   
       if not via_ftp:
          res=requests.get(dune_api+url, timeout=10)
          if not res.ok: raise Exception()
          rcc=res.text
-      else:
-          rcc=subprocess.Popen([play_script, play_load.format(url)], stdout=subprocess.PIPE).communicate()[0]
+      else: rcc=subprocess.Popen([play_script, play_load.format(url)], stdout=subprocess.PIPE).communicate()[0]
       #if successfully playing then add to playlist and inform user
-      if not quiet: print('OK. Playing {}, wait {}sec'. format(name, time))
-      else: print(seconds(time))
-      rcc=chech_result_dune(rcc)
-      if playlist and rcc: 
-          add_to_playlist(name, url, time)
-      return rcc
+      rcc_success=chech_result_dune(rcc)
+      if not rcc_success:
+         if quiet: print(0)
+         return rcc_success
+      if quiet: print(seconds(time))
+      else: print('OK. Playing {}, wait {}sec'. format(name, time))    
+      if playlist: add_to_playlist(name, url, time)
+      return rcc_success
    except ValueError as e: print(e); return
    except Exception as e:  print(e); sys.exit(2)
 
